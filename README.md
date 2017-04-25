@@ -11,8 +11,6 @@ We appreciate your continued support, thank you!
 # Table of Contents #
 * Installation
 * Quick Start
-* Usage
-* Use Cases
 * About
 
 # Installation #
