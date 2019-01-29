@@ -15,10 +15,10 @@ We appreciate your continued support, thank you!
 
 # Installation #
 ## Prerequisites ##
-* .NET version 4.5.2 and higher
+* .NET version 4.5.2 or higher
 * [An Elastic Email account](https://elasticemail.com/account/)
 ## Install Package ##
-To use ElasticEmail in your C# project, you can either [download the ElasticEmail C# .NET libraries directly from our Github repository](https://github.com/ElasticEmail/ElasticEmail.WebApiClient-csharp) or, if you have the NuGet package manager installed, you can grab them automatically.
+To use ElasticEmail in your C# project, you can [download the ElasticEmail C# .NET libraries directly from our Github repository](https://github.com/ElasticEmail/ElasticEmail.WebApiClient-csharp) or, if you have the NuGet package manager installed, you can grab them automatically.
 
 ```
 PM> Install-Package ElasticEmail.WebApiClient
@@ -29,9 +29,10 @@ Once you have the ElasticEmail.WebApiClient libraries properly referenced in you
 # Quick Start #
 ## Send Email ##
 The following is the minimum needed code to send an simple email:
+
 ```
-using static ElasticEmail.WebApiClient.Api;
-using static ElasticEmail.WebApiClient.ApiTypes;
+using static ElasticEmailClient.Api;
+using static ElasticEmailClient.ApiTypes;
 
 namespace SendEmailExample
 {
@@ -39,8 +40,65 @@ namespace SendEmailExample
     {
         static void Main(string[] args)
         {
-            ElasticEmail.WebApiClient.Api.ApiKey = "YOUR-API-KEY";
-            EmailSend emailSend = Email.Send("Hello World from Elastic Email!", "fromAddress@exmple.com", "John Tester", null, null, null, null, null, null, null, new string[] { "toAddress@exmple.com" }, null, null, null, null, null, null, "<h1>Hello! This mail was sent by Elastic Email service.<h1>", "Hello! This mail was sent by Elastic Email service.");
+            ApiKey = "YOUR-API-KEY";
+
+            var sendResult = SendEmail("Hello World from Elastic Email!", "fromAddress@exmple.com", "John Tester", new string[] { "toAddress@exmple.com" },
+                                        "<h1>Hello! This mail was sent by Elastic Email service.<h1>", "Hello! This mail was sent by Elastic Email service.");
+
+            Console.WriteLine("MsgID to store locally: " + sendResult.MessageID); // Available only if sent to a single recipient
+            Console.WriteLine("TransactionID to store locally: " + sendResult.TransactionID);
+        }
+		
+        public static EmailSend SendEmail(string subject, string fromEmail, string fromName, string[] msgTo, string html, string text)
+        {
+            try
+            {
+                return Email.Send(subject, fromEmail, fromName, msgTo: msgTo, bodyHtml: html, bodyText: text);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ApplicationException)
+                    Console.WriteLine("Server didn't accept the request: " + ex.Message);
+                else
+                    Console.WriteLine("Something unexpected happened: " + ex.Message);
+
+                return null;
+            }
+        }
+    }
+}
+```
+## Load Account ##
+This is a simple example on how to download your Account's information:
+```
+namespace LoadAccountExample
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            ApiKey = "YOUR-API-KEY";
+
+            var account = LoadAccount();
+
+            Console.WriteLine(account.PricePerEmail);
+        }
+		
+        public static ElasticEmailClient.ApiTypes.Account LoadAccount()
+        {
+            try
+            {
+                return ElasticEmailClient.Api.Account.Load();
+            }
+            catch (Exception ex)
+            {
+                if (ex is ApplicationException)
+                    Console.WriteLine("Server didn't accept the request: " + ex.Message);
+                else
+                    Console.WriteLine("Something unexpected happened: " + ex.Message);
+
+                return null;
+            }
         }
     }
 }
